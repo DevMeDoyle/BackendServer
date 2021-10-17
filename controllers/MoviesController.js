@@ -1,24 +1,17 @@
-
 const express = require('express')
 const router = express.Router();
+const mongoose = require('mongoose');
 
 
-//const movieModel = require("../model/MoviesModel.js");
 
-const movieService = require("../services/MovieServices.js")
+const movieService = require("../services/MovieServices");
 
 
 //Get all movies
-router.get("/",movieService.getAllMovieListing);
-
-router.get("/:id",movieService.getSingleMovie);
-
-router.get("/genre/:genre",movieService.getMovieGenre);
-
+//router.get("/",movieService.getMovieListing);
+router.get("/",movieService.getMovieListing);
 router.post("/",movieService.addAMovie);
 
-// router.put("/:id",movieService.updateAMovie);
 
-// router.delete("/:id",movieService.deleteAMovie);
 
 module.exports=router;

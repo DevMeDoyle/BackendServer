@@ -2,104 +2,226 @@
 
 const movieModel = require("../model/MoviesModel.js")
 
+// exports.getMovieListing =(req,res,next)=>{
+
+//     movieModel.find()
+//     .then((movieprd)=>{
+
+//         res.json({
+
+//             message: "A list of all the movies in the database",
+//             data : movieprd,
+//             total: movieprd.length
+//         })
+
+ 
+//     })
+//     .catch(err=>{
+
+//         res.status(500).json({
+//             message : `Error ${err}`,
+//         })
+//     })
 
 
-exports.getAllMovieListing =(req,res)=>{
+// };
 
+exports.addAMovie = (req,res)=>{
+
+    const data = req.body;
+
+    console.log(req.body);
+
+    const newMovie = new movieModel(data);
+
+    newMovie.save()
+    .then((movieadd)=>{
+        res.json({
+
+            message: `The movie was successfully created`,
+            data: movieadd
+        })
+       
+    })
+    .catch(err=>{
+        res.status(500).json({
+
+            message: `Error ${err}`,
+        })
+
+    })
+   
+};
+
+//Find Specific
+
+// exports.getMovieListing =(req,res,next)=>{
+
+//     movieModel.find({genre : "Action"})
+//     .then((movieprd)=>{
+
+//         res.json({
+
+//             message: "A list of all the movies in the database",
+//             data : movieprd,
+//             total: movieprd.length
+//         })
+
+ 
+//     })
+//     .catch(err=>{
+
+//         res.status(500).json({
+//             message : `Error ${err}`,
+//         })
+//     })
+
+
+// };
+
+/*
+Mongoose relational operator
+eq
+ne (not equal to)
+gt (>)
+lt (<)
+gte (>=)
+lte (<=)
+*/
+
+
+
+//Find movie greater or = 
+
+// exports.getleListing =(req,res,next)=>{
+
+//     movieModel.find({priceToBuy:{$gte : 60}})
+//     .then((movieprd)=>{
+
+//         res.json({
+
+//             message: "A list of all the movies in the database",
+//             data : movieprd,
+//             total: movieprd.length
+//         })
+
+ 
+//     })
+//     .catch(err=>{
+
+//         res.status(500).json({
+//             message : `Error ${err}`,
+//         })
+//     })
+
+
+// };
+
+/// not = to
+
+exports.getMovieListing =(req,res,next)=>{
+
+
+
+    //domain.com/movies?genere=action
+
+    //This returns all movies filtered by genre and featured
+    if(req.query.genre && req.query.featured )
+    {
+
+        movieModel.find()
+        .where("genre").equals(req.query.genre)
+        .and([{featured : req.query.featured}, {type:"movies"}])
+        .then((movieprd)=>{
     
+            res.json({
+    
+                message: "A list of all the movies in the database",
+                data : movieprd,
+                total: movieprd.length
+            })
+        })
+       .catch(err=>{
+            res.status(500).json({
+                message:`Error ${err}`
+            })
+        })
+    }
+
+
+    //This returns all movies filtered by genre ONLY
+    else if(req.query.genre)
+    {
+        movieModel.find()
+        .where("genre").equals(req.query.genre)
+        .and([ {type:"movies"}])
+
+        .then((movieprd)=>{
+    
+            console.log(movieprd)
+
 
             res.json({
-            message : "A list of Movies in the database",
-            data: movieModel.getAllProducts(),
-            total: movieModel.getAllProducts.length
-           
-
-    })
     
-};
-
-
-
-
-//ROUTE #2
-//GET A SPECIFIC USER
-
-exports.getSingleMovie=(req,res)=>{
-
-    const id = parseInt(req.params.id);
-    console.log(id)
-
-    const userFound = movieModel.getAProduct(id)
-
-    console.log(userFound)
-    if(userFound != undefined)
-    {
-        res.json({
-            message : `Details of product with the id ${userFound.id}`,
-            data:userFound
+                message: `A  list of ${req.query.genre} movies`,
+                data : movieprd,
+                total: movieprd.length
+            })
+        })
+       .catch(err=>{
+            res.status(500).json({
+                message:`Error ${err}`
+            })
         })
     }
 
+    //This returns all movies filtered by featured ONLY
+    else if(req.query.featured)
+    {
+
+        movieModel.find()
+        .where("featured").equals(req.query.featured)
+        .and([ {type:"movies"}])
+        .then((movieprd)=>{
+    
+            res.json({
+    
+                message:  req.query.featured ? "A list of featured movies" : "A list of non featured movies", 
+                data : movieprd,
+                total: movieprd.length
+            })
+        })
+       .catch(err=>{
+            res.status(500).json({
+                message:`Error ${err}`
+            })
+        })
+    }
+
+    //This returns all movies 
     else
     {
-        res.status(404).json({
-            message : `Product with id ${id} was not found`
+        movieModel.find()
+        .where("type").equals("movies")
+        .then((movieprd)=>{
+    
+            res.json({
+    
+                message: "A list of all the movies in the database",
+                data : movieprd,
+                total: movieprd.length
+            })
         })
+        .catch(err=>{
+            res.status(500).json({
+                message:`Error ${err}`
+            })
+        })
+    
     }
 
-};
 
-
-//ROUTE 3 
-//CREATE A USER
-
-exports.addAMovie=(req,res)=>{
-
-    movieModel.createProduct(req.body);
-
-    res.json({
-        message: `The user was successfully created`,
-        data : req.body
-    })
-
-};
-
-
-//4th Routh
-exports.getMovieGenre=(req,res)=>{
-
-    const genre = req.params.genre;
-    console.log(genre)
-
-    const movieFound = movieModel.getMovieGenre(genre)
-
-    console.log(movieFound)
-    if(movieFound != undefined)
-    {
-        res.json({
-            message : `Details of Movie with Genre ${movieFound.genre}`,
-            data:movieFound
-        })
-    }
-
-    else
-    {
-        res.status(404).json({
-            message : `Movie with genre ${genre} was not found`
-        })
-    }
-
-};
-
-
-// exports.updateAMovie = (req,res)=>{
 
 
 
-// };
-
-// exports.deleteAMovie = (req,res)=>{
-
-
-
-// };
+};

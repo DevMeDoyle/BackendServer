@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 
 
-//const moviesController = require ("./controllers/MoviesController.js");
+const moviesController = require ("./controllers/MoviesController.js");
 const userController = require ("./controllers/UserControler.js");
 //const authController = require ("./controllers/AuthController.js")
 const app = express();
@@ -12,7 +12,7 @@ app.use(express.json())
 
 app.use("/user",userController);
 //app.use("/auth",authController);
-//app.use("/movies",moviesController);
+app.use("/movies",moviesController);
 
 
         
