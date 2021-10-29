@@ -1,46 +1,75 @@
-
+//
 
 const movieModel = require("../model/MoviesModel.js")
-
-// exports.getMovieListing =(req,res,next)=>{
-
-//     movieModel.find()
-//     .then((movieprd)=>{
-
-//         res.json({
-
-//             message: "A list of all the movies in the database",
-//             data : movieprd,
-//             total: movieprd.length
-//         })
-
- 
-//     })
-//     .catch(err=>{
-
-//         res.status(500).json({
-//             message : `Error ${err}`,
-//         })
-//     })
+const AWS = require('aws-sdk');
+const { v4: uuidv4 } = require('uuid');
 
 
-// };
 
+
+//Add A movie
 exports.addAMovie = (req,res)=>{
 
-    const data = req.body;
+    const s3 = new AWS.S3({
+        accessKeyId: process.env.AWSAccessKeyId,
+        secretAccessKey: process.env.AWSSecretKey
+    });
 
-    console.log(req.body);
+    const newMovie = new movieModel(
+        // title : data.title,
+        // description: data.description,
+        // genre: data.genre,
+        // ratings: data.ratings,
+        // releasedate: data.releasedate,
+        // priceToRent: data.priceToRent,
+        // priceToBuy: data.priceToBuy,
+        // type: data.type
 
-    const newMovie = new movieModel(data);
+        req.body
+    );
 
+    console.log(req.files)
+    // newMovie.files=req.files
     newMovie.save()
-    .then((movieadd)=>{
-        res.json({
+    .then( movieadd => {
 
-            message: `The movie was successfully created`,
-            data: movieadd
+     const randomID = uuidv4();
+        // Setting up S3 upload parameters
+    const params = {
+        Bucket: process.env.BUCKET_NAME,
+        Key: `${randomID}_${req.files.image.name}`,  // File name you want to save as in S3
+        Body: req.files.image.data
+    };
+
+    // Uploading files to the bucket
+         s3.upload(params, function(err, data) {
+        if (err) {
+            throw err;
+
+        }
+
+        movieadd.image = data.location
+        user.save()
+        .then(newMovie=>{
+            res.json({
+
+                message: `The movie was successfully created`,
+                data: newMovie
+    
+    
+            })
+
+
         })
+
+
+        
+
+        console.log(`File uploaded successfully S3BUcket:. ${data.Location}`)
+
+    });
+
+      
        
     })
     .catch(err=>{
@@ -53,73 +82,10 @@ exports.addAMovie = (req,res)=>{
    
 };
 
-//Find Specific
-
-// exports.getMovieListing =(req,res,next)=>{
-
-//     movieModel.find({genre : "Action"})
-//     .then((movieprd)=>{
-
-//         res.json({
-
-//             message: "A list of all the movies in the database",
-//             data : movieprd,
-//             total: movieprd.length
-//         })
-
- 
-//     })
-//     .catch(err=>{
-
-//         res.status(500).json({
-//             message : `Error ${err}`,
-//         })
-//     })
-
-
-// };
-
-/*
-Mongoose relational operator
-eq
-ne (not equal to)
-gt (>)
-lt (<)
-gte (>=)
-lte (<=)
-*/
-
-
-
-//Find movie greater or = 
-
-// exports.getleListing =(req,res,next)=>{
-
-//     movieModel.find({priceToBuy:{$gte : 60}})
-//     .then((movieprd)=>{
-
-//         res.json({
-
-//             message: "A list of all the movies in the database",
-//             data : movieprd,
-//             total: movieprd.length
-//         })
-
- 
-//     })
-//     .catch(err=>{
-
-//         res.status(500).json({
-//             message : `Error ${err}`,
-//         })
-//     })
-
-
-// };
-
-/// not = to
+//Get All Movies
 
 exports.getMovieListing =(req,res,next)=>{
+
 
 
 
@@ -225,3 +191,79 @@ exports.getMovieListing =(req,res,next)=>{
 
 
 };
+
+//Update a Movie
+exports.updateAProduct = (req,res)=>{
+
+
+    const updatedDate = req.body;
+
+
+    //validation
+
+
+    movieModel.findByIdAndUpdate(req.params.id,updatedDate,{new:true})
+    .then(product=>{
+
+        //product not null. ID found
+        if(product)
+        {
+
+            res.json({
+                message : `Product with id (${req.params.id}) was updated successfully `,
+                data : product
+            })
+
+        }
+        //product was null because the id was not found
+        else
+        {
+            res.stauts(404).json({
+                message : `Product with ID : ${req.params.id} not found`,
+            })
+        }
+
+    })
+    .catch(err=>{
+
+        res.status(500).json({
+            message : `Error  ${err}`
+        })
+
+    })
+
+
+}
+
+
+//Delete a Movie
+
+exports.deleteAProduct = (req,res)=>{
+
+    movieModel.findByIdAndRemove(req.params.id)
+    .then(product=>{
+
+        console.log(product)
+        if(product)
+        {
+            res.json({
+                message :`Product was deleted`
+            })
+        }
+
+        else
+        {
+            res.status(404).json({
+                message : `Product with ID ${req.params.id} not found`
+            })
+        }
+
+    })
+    .catch(err=>{
+
+        res.status(500).json({
+            message : `Error  ${err}`
+        })
+
+    })
+}

@@ -11,6 +11,8 @@ const movieService = require("../services/MovieServices");
 //router.get("/",movieService.getMovieListing);
 router.get("/",movieService.getMovieListing);
 router.post("/",movieService.addAMovie);
+router.put('/:id', movieService.updateAProduct);
+router.delete('/:id',movieService.deleteAProduct);
 
 
 

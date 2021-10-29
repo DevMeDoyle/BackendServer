@@ -19,7 +19,7 @@ const movieSchema = new Schema({
 
     genre: {
         type: String,
-        required: true
+       
     },
 
     ratings: {
@@ -46,6 +46,12 @@ const movieSchema = new Schema({
         type: String,
         default: "default.jpg"
     },
+
+    poster: {
+        type: String,
+        default: "default.jpg"
+    },
+
 
     featured: 
     {
