@@ -39,8 +39,6 @@ exports.getUserListing = (req,res)=>{
 
 exports.addAUser = (req,res)=>{
 
-
-
     const data = req.body;
 
     console.log(req.body);
@@ -54,33 +52,33 @@ exports.addAUser = (req,res)=>{
 
     });
 
-    newUser.save()
-    .then((user)=>{
+		newUser.save()
+		.then((user)=>{
 
-        sgMail.setApiKey("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")
-const msg = {
-  to:`${req.body.email}`, // Change to your recipient
-  from: 'doyledavid5@gmail.com', // Change to your verified sender
-  subject: 'Welcome to jdmovies',
-  text: 'd',
-  html: `<h1>, ${req.body.firstName}  ${req.body.lastName} </h1> <p> You have been registered with jdmovies </p>`
-}
-sgMail
-  .send(msg)
-  .then(() => {
-
-    res.json({
-
-        message: `The user was successfully created`,
-        data: user
-    })
-    
-  })
-  .catch((error) => {K
-    console.error(error)
-  })
+			sgMail.setApiKey(process.env.SINGLE_API_KEYS)
+			const msg = {
+				to:`${req.body.email}`, // Change to your recipient
+				from: 'doyledavid5@gmail.com', // Change to your verified sender
+				subject: 'Welcome to jdmovies',
+				text: 'd',
+				html: `<h1> ${req.body.firstName}  ${req.body.lastName} </h1> <p> You have been registered with jdmovies </p>`}
 
 
-    })
+          sgMail.send(msg)
+          .then((response) => {
+
+			console.log(response)
+            res.json({
+
+				message: `The user was successfully created`,
+				data: user
+			})
+
+          })
+          .catch((error) => {
+          	console.error(error)
+          })
+
+    	}) // end of then
    
 };

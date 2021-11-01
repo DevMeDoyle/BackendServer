@@ -35,6 +35,9 @@ exports.addAMovie = (req,res)=>{
 
      const randomID = uuidv4();
         // Setting up S3 upload parameters
+
+        console.log(randomID)
+
     const params = {
         Bucket: process.env.BUCKET_NAME,
         Key: `${randomID}_${req.files.image.name}`,  // File name you want to save as in S3
@@ -48,8 +51,8 @@ exports.addAMovie = (req,res)=>{
 
         }
 
-        movieadd.image = data.location
-        user.save()
+        movieadd.image = data.Location
+        newMovie.save()
         .then(newMovie=>{
             res.json({
 
@@ -114,13 +117,39 @@ exports.getMovieListing =(req,res,next)=>{
         })
     }
 
+//tv
+
+
+else if(req.query.type && req.query.featured )
+{
+
+    movieModel.find()
+    .where("type").equals(req.query.type)
+    .and([{featured : req.query.featured}, {type:"tv-shows"}])
+    .then((movieprd)=>{
+
+        res.json({
+
+            message: "A list of all the movies in the database",
+            data : movieprd,
+            total: movieprd.length
+        })
+    })
+   .catch(err=>{
+        res.status(500).json({
+            message:`Error ${err}`
+        })
+    })
+}
+
+
 
     //This returns all movies filtered by genre ONLY
     else if(req.query.genre)
     {
         movieModel.find()
-        .where("genre").equals(req.query.genre)
-        .and([ {type:"movies"}])
+        .where("type").equals(req.query.genre)
+        .and([ {type:"tv-show"}])
 
         .then((movieprd)=>{
     
@@ -129,7 +158,7 @@ exports.getMovieListing =(req,res,next)=>{
 
             res.json({
     
-                message: `A  list of ${req.query.genre} movies`,
+                message: `A  list of ${req.query.type} movies`,
                 data : movieprd,
                 total: movieprd.length
             })
@@ -185,6 +214,10 @@ exports.getMovieListing =(req,res,next)=>{
         })
     
     }
+
+    
+    
+
 
 
 
@@ -267,3 +300,4 @@ exports.deleteAProduct = (req,res)=>{
 
     })
 }
+

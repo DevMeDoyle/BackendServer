@@ -45,8 +45,8 @@ app.listen(process.env.PORT,()=>{
 
     mongoose.connect(process.env.MONGO_DB_CONNECTION)
     .then(()=>{
-
-        // db();
+// 
+    //    db();
 
         console.log(`API is connected to MongoDB database`)
     })
